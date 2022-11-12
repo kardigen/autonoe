@@ -74,10 +74,16 @@ def scanSourceFiles(sourcePath):
                     continue
                 
                 print('## Scanning: ' + repr(path))
-                aFile = open(path, 'rb')                
-                parsedDate = parseDate(aFile,path)
-                fileHash = getFileHash(aFile)
-                aFile.close()
+                aFile = open(path, 'rb')
+                try:                 
+                    parsedDate = parseDate(aFile,path)
+                    fileHash = getFileHash(aFile)
+                except:
+                    print('ERROR parsing - skipping - file: ' + repr(path))
+                    continue
+                finally:
+                    aFile.close()
+                    
                 #print 'source: ' + path + ' date: ' + str(parsedDate[0]) + ' hash: ' + fileHash
                 result = db.execute("SELECT * FROM sources WHERE hash = '%s'" % (fileHash))
                 records = result.fetchall()
@@ -103,7 +109,7 @@ def scanSourceFiles(sourcePath):
         
         print('Scaning source directory: '+ repr(sourcePath[0]) + ' done.')
     except:
-        print('ERROR')
+        print('ERROR - CRITICAL ERROR')
         raise
     finally:
         db.close()
