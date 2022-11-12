@@ -1,0 +1,12 @@
+locale: ('en_US', 'UTF-8')
+Scaning source directory: 'data/src/formats'
+exclude \.DS_Store
+## Scanning: 'data/src/formats/AirBrush_20211017142047.jpg'
+++ Added: 'data/src/formats/AirBrush_20211017142047.jpg'
+## Scanning: 'data/src/formats/AirBrush_20211017142047.png'
+++ Added: 'data/src/formats/AirBrush_20211017142047.png'
+## Scanning: 'data/src/formats/AirBrush_20211017142047.tiff'
+++ Added: 'data/src/formats/AirBrush_20211017142047.tiff'
+## Scanning: 'data/src/formats/IMG_0009.HEIC'
+++ Added: 'data/src/formats/IMG_0009.HEIC'
+Scaning source directory: 'data/src/formats' done.

@@ -1,0 +1,14 @@
+locale: ('en_US', 'UTF-8')
+Scaning source directory: 'data/src/dates'
+exclude \.DS_Store
+## Scanning: 'data/src/dates/IMG_20210108_144423.jpg'
+## Already exists: 'data/src/dates/IMG_20210108_144423.jpg'
+## Scanning: 'data/src/dates/IMG_20210123_150339.jpg'
+## Already exists: 'data/src/dates/IMG_20210123_150339.jpg'
+## Scanning: 'data/src/dates/IMG_20210123_150343.jpg'
+## Already exists: 'data/src/dates/IMG_20210123_150343.jpg'
+## Scanning: 'data/src/dates/IMG_20210701_122707.jpg'
+## Already exists: 'data/src/dates/IMG_20210701_122707.jpg'
+## Scanning: 'data/src/dates/IMG_20220122_145827.jpg'
+## Already exists: 'data/src/dates/IMG_20220122_145827.jpg'
+Scaning source directory: 'data/src/dates' done.

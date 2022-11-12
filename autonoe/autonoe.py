@@ -10,7 +10,7 @@ date_pattern1 = re.compile(r"\d\d\d\d:\d\d:\d\d")
 date_pattern2 = re.compile(r"\d\d\d\d/\d\d/\d\d")
 date_pattern3 = re.compile(r"\d\d\d\d\\\d\d\\\d\d")
 def initDb():
-    print 'initializing DB...'
+    print('initializing DB...')
     try:
         db = sqlite3.connect(DB_NAME)
         c = db.cursor()
@@ -23,6 +23,8 @@ def initDb():
         
         c.execute('''CREATE TABLE sources (id integer PRIMARY KEY, source_path text, date text, date_type text, hash text, status text)''')
         c.execute('''CREATE TABLE targets (id integer PRIMARY KEY, target_path text, source_path text, date text, date_type text, hash text, status text)''')
+        c.execute('''CREATE INDEX IF NOT EXISTS target_hash_idx on targets (hash)''')
+        c.execute('''CREATE INDEX IF NOT EXISTS source_hash_idx on sources (hash)''')
         
         db.commit()
         db.close()
@@ -60,17 +62,18 @@ def getFileHash(aFile):
 def scanSourceFiles(sourcePath):
     print('Scaning source directory: '+ repr(sourcePath[0]) )
     excludes = r'' + (re.escape(sourcePath[1]) if len(sourcePath) > 1 else '$')
-    #print 'exclude ' + excludes
+    print ('exclude ' + excludes)
     try:
         db = sqlite3.connect(DB_NAME)
         for root, dirs, files in os.walk(sourcePath[0]): # Walk directory tree
             dirs[:] = [d for d in dirs if not re.match(excludes, d)]
+            files[:] = [f for f in files if not re.match(excludes, f)]
             for f in files:
                 path = join(root, f)
                 if not os.path.isfile(path):
                     continue
                 
-                print 'print scanning: ' + repr(path)
+                print('## Scanning: ' + repr(path))
                 aFile = open(path, 'rb')                
                 parsedDate = parseDate(aFile,path)
                 fileHash = getFileHash(aFile)
@@ -81,6 +84,7 @@ def scanSourceFiles(sourcePath):
                 if(len(records) == 0):
                     #print "INSERT INTO sources VALUES (NULL,'%s','%s','%s','%s','source_scan')" % (path,parsedDate[0],parsedDate[1],fileHash)
                     db.execute("INSERT INTO sources VALUES (NULL,'%s','%s','%s','%s','source_scan')" % (path,parsedDate[0],parsedDate[1],fileHash))
+                    print('++ Added: ' + repr(path))
                 else:
                     existsAlready = False
                     for record in records:
@@ -91,6 +95,9 @@ def scanSourceFiles(sourcePath):
                     if(not existsAlready):
                         #print "INSERT INTO sources VALUES (NULL,'%s','%s','%s','%s','source_scan')" % (path,parsedDate[0],parsedDate[1],fileHash)
                         db.execute("INSERT INTO sources VALUES (NULL,'%s','%s','%s','%s','source_scan')" % (path,parsedDate[0],parsedDate[1],fileHash))
+                        print('++ Added: ' + repr(path))
+                    else:
+                        print('## Already exists: ' + repr(path))
             db.commit()    
                 
         
@@ -117,12 +124,13 @@ def scanTargetFiles(targetPath):
         # Walk directory tree
         for root, dirs, files in os.walk(targetPath[0]):
             dirs[:] = [d for d in dirs if not re.match(excludes, d)]
+            files[:] = [f for f in files if not re.match(excludes, f)]
             for f in files:
                 path = join(root, f)
                 if not os.path.isfile(path):
                     continue
                 
-                print 'print scanning: ' + repr(path)
+                print ('## Scanning: ' + repr(path))
                 aFile = open(path, 'rb')                
                 parsedDate = parseDate(aFile,path)
                 fileHash = getFileHash(aFile)
@@ -148,7 +156,10 @@ def processSourceFiles(targetPath):
             targetWithHash = db.execute("SELECT * FROM targets WHERE hash = '%s'" % (record[4]))
             targetWithHashResults = targetWithHash.fetchall()
             dateSplited = record[2].split(':')
+            if len(dateSplited) < 3:
+                dateSplited = record[2].split('/')
             srcFile = record[1] if repr(record[1][0]) == repr(u'/') else HOME_DIR +"/" + record[1] 
+            # print(dateSplited)
             targetPathFull = targetPath[0] + '/' + dateSplited[0] + "/" + dateSplited[1] + "/" + dateSplited[2] + "/"
             targetDir = targetPathFull if repr(targetPathFull[0]) == repr(u'/') else HOME_DIR + "/" + targetPathFull
             
@@ -158,7 +169,7 @@ def processSourceFiles(targetPath):
                 except:
                     pass
                 
-                print "copy new: cp -p -n " + repr(srcFile) + " " + repr(targetDir)
+                print ("++ Copy new file: cp -p -n " + repr(record[1]) + " " + repr(targetPathFull))
                 cpResult = subprocess.call(['cp','-p','-n',srcFile,targetDir ])
                 if(cpResult == 0):
                     #print "INSERT INTO targets VALUES (NULL,'%s','%s','%s','%s','%s','coppied')" % (targetPathFull,record[1],record[2],record[3],record[4])
@@ -166,13 +177,14 @@ def processSourceFiles(targetPath):
                     #print "UPDATE sources SET status = 'coppied' WHERE id = " + str(record[0])
                     db.execute("UPDATE sources SET status = 'coppied' WHERE id = " + str(record[0]))
                 else:
-                    print "ERROR copy new: cp -p -n " + repr(srcFile) + " " + repr(targetDir)
+                    print ( "ERROR copy new: cp -p -n " + repr(srcFile) + " " + repr(targetDir))
             else:
                 for targetRecord in targetWithHashResults:
                     #check if dates are equal
                     if targetRecord[3] == record[2] and targetRecord[4] == record[3]:
                         #print "UPDATE sources SET status = 'dupplicated' WHERE id = " + str(record[0])
                         db.execute("UPDATE sources SET status = 'dupplicated' WHERE id = " + str(record[0]))
+                        print ("== Source file matches existing file: " + srcFile + " == " + targetRecord[2])
                         continue
                     else:
                         try:
@@ -180,7 +192,7 @@ def processSourceFiles(targetPath):
                         except:
                             pass
                         
-                        print "copy different dates: cp -p -n " + repr(srcFile) + " " + repr(targetDir)
+                        print ("++ Copy different file: cp -p -n " + repr(srcFile) + " " + repr(targetDir))
                         cpResult = subprocess.call(['cp','-p','-n',srcFile  ,targetDir ])
                         if(cpResult == 0):
                             #print "INSERT INTO targets VALUES (NULL,'%s','%s','%s','%s','%s','coppied')" % (targetPathFull,record[1],record[2],record[3],record[4])
@@ -188,7 +200,7 @@ def processSourceFiles(targetPath):
                             #print "UPDATE sources SET status = 'coppied' WHERE id = " + str(record[0])
                             db.execute("UPDATE sources SET status = 'coppied' WHERE id = " + str(record[0]))
                         else:
-                            print "ERROR copy different dates: cp -p -n " + repr(srcFile) + " " + repr(targetDir)
+                            print ("ERROR copy different dates: cp -p -n " + repr(srcFile) + " " + repr(targetDir))
         
         db.commit()
         print('Processing files done.')
@@ -201,15 +213,15 @@ def processSourceFiles(targetPath):
 def usage():
 	print('usage: python autonoe ?option?')
 	print("  available options:")
-	print("    [-i | --init-db] - initialize database autonoe.db file in current directory")
-	print("    [-t | --scan-target <target_dir_path>] - scan target directory to build target files index")
-	print("    [-s | --scan-source <source_dir_path>] - scan source directory to build source file queue")
+	print("    [-i | --init-db] - initialize database autonoe.db file in current directory - it will remove all the data if db exists")
+	print("    [-t | --scan-target <target_dir_path> <excludes>] - scan target directory to build target files index, excludes is optional parameter to exclude some names of folders and files")
+	print("    [-s | --scan-source <source_dir_path> <excludes>] - scan source directory to build source file queue, excludes is optional parameter to exclude some names of folders and files")
 	print("    [-p | --process <target_dir_path>] - process sources and targets and copy new files and update existing")
 	
 
 def main(argv):
     locale.setlocale(locale.LC_ALL, '')
-    print "locale: " + str(locale.getlocale())
+    print ("locale: " + str(locale.getlocale()))
     try:
         opts,args = getopt.getopt(argv,"histp",["help","init-db","scan-source","scan-target","process"])
     except getopt.GetoptError as err:

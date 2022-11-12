@@ -1,0 +1,8 @@
+locale: ('en_US', 'UTF-8')
+Processing files to target directory: 'tmp'
+++ Copy new file: cp -p -n 'data/src/dates/IMG_20210108_144423.jpg' 'tmp/2021/01/08/'
+++ Copy new file: cp -p -n 'data/src/dates/IMG_20210123_150339.jpg' 'tmp/2021/01/23/'
+++ Copy new file: cp -p -n 'data/src/dates/IMG_20210123_150343.jpg' 'tmp/2021/01/23/'
+++ Copy new file: cp -p -n 'data/src/dates/IMG_20210701_122707.jpg' 'tmp/2021/07/01/'
+++ Copy new file: cp -p -n 'data/src/dates/IMG_20220122_145827.jpg' 'tmp/2022/01/22/'
+Processing files done.

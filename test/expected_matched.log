@@ -1,0 +1,8 @@
+locale: ('en_US', 'UTF-8')
+Processing files to target directory: 'tmp'
+== Source file matches existing file: /Volumes/Backup/photos-scripts/autonoe/test/data/src/dates/IMG_20210108_144423.jpg == tmp/2021/01/08/IMG_20210108_144423.jpg
+== Source file matches existing file: /Volumes/Backup/photos-scripts/autonoe/test/data/src/dates/IMG_20210123_150339.jpg == tmp/2021/01/23/IMG_20210123_150339.jpg
+== Source file matches existing file: /Volumes/Backup/photos-scripts/autonoe/test/data/src/dates/IMG_20210123_150343.jpg == tmp/2021/01/23/IMG_20210123_150343.jpg
+== Source file matches existing file: /Volumes/Backup/photos-scripts/autonoe/test/data/src/dates/IMG_20210701_122707.jpg == tmp/2021/07/01/IMG_20210701_122707.jpg
+== Source file matches existing file: /Volumes/Backup/photos-scripts/autonoe/test/data/src/dates/IMG_20220122_145827.jpg == tmp/2022/01/22/IMG_20220122_145827.jpg
+Processing files done.

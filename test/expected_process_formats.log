@@ -1,0 +1,7 @@
+locale: ('en_US', 'UTF-8')
+Processing files to target directory: 'tmp'
+++ Copy new file: cp -p -n 'data/src/formats/AirBrush_20211017142047.jpg' 'tmp/2022/11/11/'
+++ Copy new file: cp -p -n 'data/src/formats/AirBrush_20211017142047.png' 'tmp/2022/11/11/'
+++ Copy new file: cp -p -n 'data/src/formats/AirBrush_20211017142047.tiff' 'tmp/2022/11/11/'
+++ Copy new file: cp -p -n 'data/src/formats/IMG_0009.HEIC' 'tmp/2022/05/16/'
+Processing files done.
